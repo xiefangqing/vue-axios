@@ -34,6 +34,50 @@ export default {
     }).then(res => {
       console.log(res)
     })
+    // application/json
+    const data = {
+      name: 'xiaoxie'
+    }
+    axios.post('/post', data).then(res => {
+      console.log(res)
+    })
+    axios({
+      method: 'post',
+      url: '/post',
+      data
+    }).then(res => {
+      console.log(res)
+    })
+    // form-data 表单提交，图片文件上传
+    const formData = new FormData()
+    for (const key in data) {
+      formData.append(key, data[key])
+    }
+    axios.post('/post', formData).then(res => {
+      console.log(res)
+    })
+    // put、patch和post类似，三个参数
+    axios.put('/put', data).then(res => {
+      // ...
+    })
+    axios.patch('/patch', data).then(res => {
+      // ...
+    })
+    // delete和get类似，两个参数
+    axios.delete('/delete', {
+      params: {
+        id: 28
+      }
+    }).then(res => {
+      // ...
+    })
+    axios.delete('/delete', {
+      data: {
+        id: 28
+      }
+    }).then(res => {
+      // ...
+    })
   }
 }
 </script>
