@@ -20,12 +20,10 @@
 
 <script>
 import { ContactList, Toast, ContactEdit, Popup } from 'vant'
-import axios from 'axios'
 export default {
   data () {
     return {
       list: [],
-      instance: null, // axios实例
       show: false, // 编辑弹窗的显隐
       editingContact: {}, // 正在编辑的联系人数据
       isEdit: false // 控制新建或编辑
@@ -50,66 +48,45 @@ export default {
       this.editingContact = info
     },
     // 保存联系人
-    onSave (info) {
+    async onSave (info) {
       if (this.isEdit) {
         // 编辑保存
-        this.instance.put('/contact/edit', info).then(res => {
-          if (res.data.code === 200) {
-            Toast('编辑成功')
-            this.show = false
-            this.getList()
-            this.editingContact = {}
-          }
-        }).catch(() => {
-          Toast('编辑失败')
-        })
-      } else {
-        // 新建保存
-        this.instance.post('/contact/new/json', info).then(res => {
-          if (res.data.code === 200) {
-            Toast('新建成功')
-            this.show = false
-            this.getList()
-            this.editingContact = {}
-          }
-        }).catch(() => {
-          Toast('新建失败')
-        })
-      }
-    },
-    // 删除联系人
-    onDelete (info) {
-      this.instance.delete('/contact', {
-        params: {
-          id: info.id
-        }
-      }).then(res => {
-        if (res.data.code === 200) {
-          Toast('删除成功')
+        const res = await this.$Http.editContact(info)
+        if (res.code === 200) {
+          Toast('编辑成功')
           this.show = false
           this.getList()
           this.editingContact = {}
         }
-      }).catch(() => {
-        Toast('删除失败')
-      })
+      } else {
+        // 新建保存
+        // const res = await this.$Http.newContactForm(info, true)
+        const res = await this.$Http.newContactJson(info)
+        if (res.code === 200) {
+          Toast('编辑成功')
+          this.show = false
+          this.getList()
+          this.editingContact = {}
+        }
+      }
+    },
+    // 删除联系人
+    async onDelete (info) {
+      const res = await this.$Http.deleteContact({ id: info.id })
+      if (res.code === 200) {
+        Toast('删除成功')
+        this.show = false
+        this.getList()
+        this.editingContact = {}
+      }
     },
     // 获取联系人列表
-    getList () {
-      this.instance.get('/contactList').then(res => {
-        if (res.data.code === 200) {
-          this.list = res.data.data
-        }
-      }).catch(() => {
-        Toast('请求失败，请稍后重试')
-      })
+    async getList () {
+      const res = await this.$Http.getContactList()
+      this.list = res.data
     }
   },
   created () {
-    this.instance = axios.create({
-      baseURL: 'http://localhost:9000/api',
-      timeout: 1000
-    })
     this.getList()
   }
 }
